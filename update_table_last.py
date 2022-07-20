@@ -79,6 +79,7 @@ def get_order_count(article_plan_fact):
 
 def update_table_order(table_id):
     date = f'{day}.{month}.{year}'
+    article = ''
     service = build('sheets', 'v4', credentials=credentials)
     sheet = service.spreadsheets()
     result = sheet.values().get(spreadsheetId=table_id,
@@ -94,8 +95,11 @@ def update_table_order(table_id):
                 column = values.index(date)+1
             for item in values:
                 if item.startswith('Артикул'):
-                    article = values[0][-8::]
+                    for i in item:
+                        if i.isdigit():
+                            article += i
                     value = get_order_count(article)
+                    article = ''
                     try:
                         body_data += [
                             {'range': f'{range_name}!{convert_to_column_letter(column)}{row}',
@@ -123,6 +127,7 @@ def dicts_sales(employees_sheet):
 
 def update_table_sale(table_id, dicts_sales):
     date = f'{day}.{month}.{year}'
+    article = ''
     service = build('sheets', 'v4', credentials=credentials)
     sheet = service.spreadsheets()
     result = sheet.values().get(spreadsheetId=table_id,
@@ -138,8 +143,11 @@ def update_table_sale(table_id, dicts_sales):
                 column = values.index(date) + 1
             for item in values:
                 if item.startswith('Артикул'):
-                    article = str(values[0][-8::])
+                    for i in item:
+                        if i.isdigit():
+                            article += i
                     value = dicts_sales[article]
+                    article = ''
                     try:
                         body_data += [
                             {'range': f'{range_name}!{convert_to_column_letter(column)}{row}',
@@ -163,9 +171,9 @@ if __name__ == '__main__':
     range_name = NAME_SHEET
     update_table_order(SPREADSHEET_ID)
     time.sleep(10)
-    copy_excel(path='~/wb/fbo_excel/excel_docs',path_new='~/wb/plan_fact/excel_docs')
+    copy_excel(path='/home/werocket/wb/parser_fbo/excel_docs',path_new='/home/werocket/wb/plan_fact/excel_docs')
     time.sleep(1)
-    path = '~/wb/plan_fact/excel_docs'
+    path = '/home/werocket/wb/plan_fact/excel_docs'
     common_excel(path)
     time.sleep(1)
     del_start_excel(path)
