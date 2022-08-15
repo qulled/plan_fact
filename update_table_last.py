@@ -33,7 +33,7 @@ logging.basicConfig(
 )
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-CREDENTIALS_FILE = 'credentials_service.json'
+CREDENTIALS_FILE = '/home/lotelove/wb/SERVICE/credentials_service.json'
 credentials = service_account.Credentials.from_service_account_file(CREDENTIALS_FILE)
 service = discovery.build('sheets', 'v4', credentials=credentials)
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -73,8 +73,12 @@ def get_order_count(article_plan_fact):
                 fbo = 15 + (int(day) - 1) * 6
                 if row[fbo] == '':
                     row[fbo] = 0
-                summ = int(row[fbs])+int(row[fbo])
-                return summ
+                try:
+                    if int(row[fbs]) >= 0:
+                        summ = int(row[fbs])+int(row[fbo])
+                except:
+                    summ = row[fbo]
+    return summ
 
 
 def update_table_order(table_id):
@@ -146,8 +150,12 @@ def update_table_sale(table_id, dicts_sales):
                     for i in item:
                         if i.isdigit():
                             article += i
-                    value = dicts_sales[article]
-                    article = ''
+                    try:
+                        value = dicts_sales[article]
+                        article = ''
+                    except:
+                        value = 0
+                        article = ''
                     try:
                         body_data += [
                             {'range': f'{range_name}!{convert_to_column_letter(column)}{row}',
@@ -171,9 +179,9 @@ if __name__ == '__main__':
     range_name = NAME_SHEET
     update_table_order(SPREADSHEET_ID)
     time.sleep(10)
-    copy_excel(path='/home/werocket/wb/parser_fbo/excel_docs',path_new='/home/werocket/wb/plan_fact/excel_docs')
+    copy_excel(path='/home/lotelove/wb/pars_fbo/excel_docs',path_new='/home/lotelove/wb/plan_fact/excel_docs')
     time.sleep(1)
-    path = '/home/werocket/wb/plan_fact/excel_docs'
+    path = '/home/lotelove/wb/plan_fact/excel_docs'
     common_excel(path)
     time.sleep(1)
     del_start_excel(path)
